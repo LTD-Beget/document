@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package beget.document.v1.reconciliation;
+import "google/api/annotations.proto";
+
+service ReconciliationService {
+    // Получить список периодов, за которые можно запросить акт сверки по каждой организации
+    rpc getAvailablePeriods (GetAvailablePeriodsRequest) returns (GetAvailablePeriodsResponse) {
+        option (google.api.http) = {
+            get: "/v1/document/reconciliation-act/periods"
+        };
+    }
+
+    // Запросить акт сверки
+    rpc requestReconciliationAct (RequestReconciliationActRequest) returns (RequestReconciliationActResponse) {
+        option (google.api.http) = {
+            post: "/v1/document/reconciliation-act"
+        };
+    }
+}
+
+message GetAvailablePeriodsRequest {
+}
+
+message GetAvailablePeriodsResponse {
+    repeated Period period = 1; // Список периодов, за которые можно запросить акт сверки
+
+    message Period {
+        Organization organization = 1; // Основные данные организации
+        repeated uint32 year = 2; // Года, за которые доступен акт сверки
+    }
+
+    message Organization {
+        uint32 organization_id = 1;
+        string name = 2;
+        string taxpayer_number = 3;
+        bool is_current = 4;
+    }
+}
+
+message RequestReconciliationActRequest {
+    uint32 year = 1; // Год сверки
+    uint32 organization_id = 2; // ИД организации полученный из списка периодов
+}
+
+message RequestReconciliationActResponse {
+    oneof result {
+        Success success = 1;
+        Error error = 2;
+    }
+
+    message Success {
+        oneof payload {
+            string download_link = 1; // Ссылка на скачивание документа
+            string ticket_id = 2; // Номер созданного тикета, в случае если автоматическое получение акта сверки не доступно
+        }
+    }
+
+    message Error {
+        Code code = 1;
+        string message = 2;
+
+        enum Code {
+            _ = 0;
+            UNAVAILABLE_PERIOD = 1;
+        }
+    }
+}
