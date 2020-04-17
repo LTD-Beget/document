@@ -15,6 +15,7 @@ service ReconciliationService {
     rpc requestReconciliationAct (RequestReconciliationActRequest) returns (RequestReconciliationActResponse) {
         option (google.api.http) = {
             post: "/v1/document/reconciliation-act"
+            body: "*"
         };
     }
 }
