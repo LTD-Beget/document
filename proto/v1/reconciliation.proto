@@ -64,6 +64,7 @@ message RequestReconciliationActResponse {
         enum Code {
             _ = 0;
             UNAVAILABLE_PERIOD = 1;
+            ACTS_PROCESSING = 2;
         }
     }
 }
